@@ -1,0 +1,139 @@
+{
+  "tileObjects": [
+    {
+      "id": "Engi",
+      "imageAsset": "character_engineer.png"
+    },
+    {
+      "id": "Ranger",
+      "imageAsset": "character_ranger.png"
+    },
+    {
+      "id": "Warrior",
+      "imageAsset": "character_warrior.png"
+    },
+    {
+      "id": "Chemist",
+      "imageAsset": "character_chemist.png"
+    },
+    {
+      "id": "Berserker",
+      "imageAsset": "character_berserker.png"
+    },
+    {
+      "id": "Robo",
+      "imageAsset": "character_robo.png"
+    },
+    {
+      "id": "Enemy",
+      "imageAsset": "character_enemy.png"
+    }
+  ],
+  "compoundObjects": [
+    {
+      "tileObjects": [
+        [
+          "Engi",
+          "Engi",
+          "Engi"
+        ],
+        [
+          "Engi",
+          "Engi",
+          "Engi"
+        ],
+        [
+          "Engi",
+          "Engi",
+          "Engi"
+        ]
+      ],
+      "width": 3,
+      "height": 3
+    },
+    {
+      "tileObjects": [
+        [
+          "Ranger",
+          "Ranger",
+          "Ranger"
+        ]
+      ],
+      "width": 1,
+      "height": 3
+    },
+    {
+      "tileObjects": [
+        [
+          "Warrior"
+        ],
+        [
+          "Warrior"
+        ],
+        [
+          "Warrior"
+        ]
+      ],
+      "width": 3,
+      "height": 1
+    },
+    {
+      "tileObjects": [
+        [
+          "Chemist",
+          "Chemist"
+        ],
+        [
+          "Chemist",
+          "Chemist"
+        ]
+      ],
+      "width": 2,
+      "height": 2
+    },
+    {
+      "tileObjects": [
+        [
+          null,
+          "Berserker"
+        ],
+        [
+          "Berserker",
+          "Berserker"
+        ]
+      ],
+      "width": 2,
+      "height": 2
+    },
+    {
+      "tileObjects": [
+        [
+          null,
+          "Robo",
+          null
+        ],
+        [
+          "Robo",
+          "Robo",
+          "Robo"
+        ],
+        [
+          null,
+          "Robo",
+          null
+        ]
+      ],
+      "width": 3,
+      "height": 3
+    },
+    {
+      "tileObjects": [
+        [
+          "Enemy"
+        ]
+      ],
+      "width": 1,
+      "height": 1
+    }
+  ]
+}

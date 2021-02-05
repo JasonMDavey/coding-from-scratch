@@ -1,0 +1,7 @@
+enum Tag {
+  STEALTH,
+  COMBAT,
+  OBSERVATION,
+  ANIMAL_HANDLING,
+  FIRST_AID
+}

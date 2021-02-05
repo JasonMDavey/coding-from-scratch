@@ -1,0 +1,9 @@
+[
+    {"name":"Engi", "imageAsset":"character_engineer.png"},
+    {"name":"Ranger", "imageAsset":"character_ranger.png"},
+    {"name":"Warrior", "imageAsset":"character_warrior.png"},
+    {"name":"Chemist", "imageAsset":"character_chemist.png"},
+    {"name":"Berserker", "imageAsset":"character_berserker.png"},
+    {"name":"Robo", "imageAsset":"character_robo.png"},
+    {"name":"Enemy", "imageAsset":"character_enemy.png"}
+]

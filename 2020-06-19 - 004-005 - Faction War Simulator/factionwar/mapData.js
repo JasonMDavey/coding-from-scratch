@@ -1,0 +1,33 @@
+let factions = {
+	"church": {"name":"church", "color":{r:30,g:175,b:14}, "home":0, "players":350},
+	"industrialists": {"name":"industrialists", "color":{r:255,g:175,b:14}, "home":22, "players": 350},
+	"jasonstansfigulusluti": {"name":"jasonstansfigulusluti", "color":{r:100,g:27,b:234}, "home":19, "players": 350},
+	"Andrew et Barbatus scripsit": {"name":"Andrew et Barbatus scripsit", "color":{r:43,g:65,b:239}, "home":4, "players": 350},
+	"Paulus autem Nicaenum": {"name":"Paulus autem Nicaenum", "color":{r:69,g:42,b:0}, "home":null, "players": 500},
+};
+
+let territories = {
+	0: {"neighbours":[1,17], "center":{x:550,y:67}, "owner":null, "power":10},
+  1: {"neighbours":[0,2,3], "center":{x:610,y:125}, "owner":null, "power":1},	
+	2: {"neighbours":[17,1,5], "center":{x:532,y:161}, "owner":null, "power":1},	
+	3: {"neighbours":[1,4,5], "center":{x:686,y:199}, "owner":null, "power":1},	
+	4: {"neighbours":[3,6], "center":{x:748,y:250}, "owner":null, "power":10},	
+	5: {"neighbours":[2,3,7], "center":{x:584,y:212}, "owner":null, "power":1},	
+	6: {"neighbours":[7,9,4], "center":{x:658,y:300}, "owner":null, "power":1},	
+	7: {"neighbours":[5,8,6], "center":{x:565,y:275}, "owner":null, "power":1},	
+	8: {"neighbours":[7,12,9,10], "center":{x:514,y:323}, "owner":null, "power":1},	
+	9: {"neighbours":[6,8,10], "center":{x:588,y:340}, "owner":null, "power":1},	
+	10: {"neighbours":[8,9,11], "center":{x:495,y:376}, "owner":null, "power":1},	
+	11: {"neighbours":[12,22,10], "center":{x:410,y:403}, "owner":null, "power":1},	
+	12: {"neighbours":[13,8,11], "center":{x:418,y:340}, "owner":null, "power":1},	
+	13: {"neighbours":[14,12,21], "center":{x:325,y:330}, "owner":null, "power":1},	
+	14: {"neighbours":[15,20,13], "center":{x:289,y:276}, "owner":null, "power":1},	
+	15: {"neighbours":[16,18,14], "center":{x:310,y:204}, "owner":null, "power":1},	
+	16: {"neighbours":[17,18,15], "center":{x:341,y:139}, "owner":null, "power":1},	
+	17: {"neighbours":[16,2,0], "center":{x:448,y:125}, "owner":null, "power":1},	
+	18: {"neighbours":[16,16,19], "center":{x:232,y:182}, "owner":null, "power":1},	
+	19: {"neighbours":[18,20], "center":{x:116,y:236}, "owner":null, "power":10},	
+	20: {"neighbours":[19,14,21], "center":{x:168,y:294}, "owner":null, "power":1},	
+	21: {"neighbours":[20,13,22], "center":{x:247,y:376}, "owner":null, "power":1},
+	22: {"neighbours":[21,11], "center":{x:293,y:438}, "owner":null, "power":10},
+};

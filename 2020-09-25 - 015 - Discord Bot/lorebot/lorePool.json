@@ -1,0 +1,12 @@
+{
+    "Breadcrumbs": [
+        {"Text":"Hello world!", "Prereqs":[], "Reveals":[]},
+        {"Text":"Faction X exist, yo!", "Prereqs":[], "Reveals":["faction.x"]},
+        {"Text":"Faction X are meanies!", "Prereqs":["faction.x"], "Reveals":[]},
+        {"Text":"Faction X steal candy from babies!", "Prereqs":["faction.x", "faction.x.areMeanies"], "Reveals":[]}
+    ],
+    "Keywords": [
+        {"Reveal":"faction.x", "Triggers":[["faction","x"]]},
+        {"Reveal":"faction.x.areMeanies", "Triggers":[["faction","x","mean"], ["faction","x","meanies"]]}
+    ]
+}
