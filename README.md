@@ -16,5 +16,3 @@ Past projects include:
 * Graphical experiments and visualisations
 * Interactive toys
 * Twitch and Discord bots
-
-Hello!
