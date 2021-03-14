@@ -1,14 +1,13 @@
 import java.util.HashSet;
-import java.util.List;
 
-// Physics / gameplay constants
-int WORLD_WIDTH, WORLD_HEIGHT;
+enum State { AIM, POWER, RESOLVE }
 
 final PVector GRAVITY = new PVector(0, 20);
 final float MAX_WIND_SPEED = 5f;
+
+final float MAX_POWER_HOLD_SECONDS = 2f;
 final float MAX_LAUNCH_SPEED = 200f;
 
-// Visual constants
 final float SCALE_FACTOR = 3;
 
 final color AIR_COLOR = color(0,0,0,0);
@@ -18,39 +17,25 @@ final float NOISE_SCALE = 0.01f;
 
 final int TANK_SIZE = 6;
 
-// UI constants
-final float MAX_POWER_HOLD_SECONDS = 2f;
-final float FAST_TURRET_TURN_RATE = 0.5f;
-final float SLOW_TURRET_TURN_RATE = 0.1f;
 
-// Game state
-enum State { AIM, POWER, RESOLVE, GAME_OVER }
-State state;
-
-enum ProjectileType { 
-  REGULAR("Regular"),
-  CLUSTER_BOMB("Cluster");
-
-  public String label;
-  private ProjectileType(String label) { this.label = label; }
-}
-ProjectileType selectedProjectileType;
+int WORLD_WIDTH, WORLD_HEIGHT;
 
 PImage terrainTexture;
+
 WindParticleSystem windParticles;
 
-Tank[] tanks;
+State state = State.AIM;
 
+Tank[] tanks;
 int activeTankIndex = 0;
 float launchPower = 0f;
 
 PVector wind = new PVector();
-
-List<Projectile> activeProjectiles = new ArrayList<Projectile>();
-List<Explosion> activeExplosions = new ArrayList<Explosion>();
+Projectile activeProjectile;
+Explosion activeExplosion;
 
 void setup() {
-  size(1000, 600, P2D);
+  size(1000, 750, P2D);
   WORLD_WIDTH = (int)Math.ceil(width / SCALE_FACTOR);
   WORLD_HEIGHT = (int)Math.ceil(height / SCALE_FACTOR);
   
@@ -58,21 +43,13 @@ void setup() {
   // Does Processing give us a nicer way to do this?
   // TODO: clean this up
   ((PGraphicsOpenGL)g).textureSampling(2);
- 
-  resetGame();
-}
-
-void resetGame() {
+  
   generateTerrain();
   changeWind();
   
   tanks = new Tank[2];
   tanks[0] = spawnTank(30, color(255,0,0));
   tanks[1] = spawnTank(WORLD_WIDTH-30, color(255,0,255));
-  
-  state = State.AIM;
-  activeTankIndex = 0;
-  selectedProjectileType = ProjectileType.REGULAR;
   
   windParticles = new WindParticleSystem(200);
 }
@@ -84,6 +61,7 @@ void draw() {
   float deltaMillis = timeMillis-previousMillis;
   float deltaSeconds = deltaMillis / 1000f;
   previousMillis = timeMillis;
+  deltaSeconds = 1/20f;
   
   /*
    * Update
@@ -95,13 +73,13 @@ void draw() {
   switch (state) {
     case AIM: {
       Tank activeTank = tanks[activeTankIndex];
-      float turnRate = heldKeys.contains(SHIFT) ? SLOW_TURRET_TURN_RATE : FAST_TURRET_TURN_RATE;
+      float aimRate = heldKeys.contains(SHIFT) ? 0.1f : 0.5f;
       
       if (heldKeys.contains(RIGHT)) {
-        activeTank.turnTurret(+turnRate * deltaSeconds);
+        activeTank.aimTurret(+aimRate * deltaSeconds);
       }
       if (heldKeys.contains(LEFT)) {
-        activeTank.turnTurret(-turnRate * deltaSeconds);
+        activeTank.aimTurret(-aimRate * deltaSeconds);
       }    
       break;
     }
@@ -113,54 +91,24 @@ void draw() {
       break;
     }
     case RESOLVE: {
-      boolean somethingIsStillActive = false;
-      for (Projectile p : activeProjectiles) {
-        if (p.isDead) continue;
-        
-        p.update(deltaSeconds);
-        somethingIsStillActive = true;
+      activeProjectile.update(deltaSeconds);
+      if (activeExplosion != null) {
+        activeExplosion.update(deltaSeconds);
       }
-      
-      for (Explosion e : activeExplosions) {
-        if (e.isDead) continue;
-        
-        e.update(deltaSeconds);
-        somethingIsStillActive = true;
-      }
-      
-      if (!somethingIsStillActive) {
-        // Cleanup
-        activeProjectiles.clear();
-        activeExplosions.clear();
-          
-        // Done resolving - check for win
-        int aliveTankCount = 0;
-        for (Tank t : tanks) {
-          if (t.health > 0) {
-            ++aliveTankCount;
-          }
-        }
-        
-        if (aliveTankCount == 0 || aliveTankCount == 1) {
-          // Win or draw
-          state = State.GAME_OVER;
-        }
-        else {
-          // Move to next turn
-                    
-          // Pick new wind direction
-          changeWind();
   
-          // Advance to next turn
-          activeTankIndex = (activeTankIndex+1) % tanks.length;
-          state = State.AIM;
-        }
+      if (activeProjectile.isDead && (activeExplosion == null || activeExplosion.isDead)) {
+        // Done resolving - reset for next player's turn
+        changeWind();
+        state = State.AIM;
+        activeProjectile = null;
+        activeExplosion = null;
+        activeTankIndex = (activeTankIndex+1) % tanks.length;
       }  
       break;
     }
   }
   
-  windParticles.update(deltaSeconds);
+  windParticles.update(deltaSeconds); //<>//
   
   /*
    * Rendering
@@ -178,102 +126,36 @@ void draw() {
     tank.draw();
   }
   
-  for (Projectile p : activeProjectiles) {
-    //if (p.isDead) continue;
-    p.draw();
+  if (activeProjectile != null) {
+    activeProjectile.draw();
   }
   
-  for (Explosion e : activeExplosions) {
-    if (e.isDead) continue;
-    e.draw();
+  if (activeExplosion != null) {
+    activeExplosion.draw();
   }
   
-  /*
-   * UI
-   */
-  
-  // Tank health
-  textAlign(RIGHT);
-  noStroke();
-  int yOffset = 11;
-  for (Tank t : tanks) {
-    fill(t.col);
-    text("Lives: " + t.health, WORLD_WIDTH-2, yOffset);
-    yOffset += 13;
-  }
-  
-  switch (state) {
-    case AIM: {
-      noStroke();
-      fill(255,255,255);
-      textAlign(LEFT);
-      text(selectedProjectileType.label, 1, 11);
-      break;
-    }
-    
-    case POWER: {
-      stroke(255,160,60);
-      strokeWeight(1);
-      noFill();
-      rect(0,0,WORLD_WIDTH, 3);
-          
-      fill(255,160,60);
-      noStroke();
-      fill(255,160,60);
-      rect(0,0,WORLD_WIDTH*launchPower, 3);
-      
-      break;
-    }
-    
-    case RESOLVE: {
-      for (Projectile p : activeProjectiles) {
-        if (p.isDead) continue;
+  // UI
+  if (state == State.POWER) {
+    stroke(255,160,60);
+    strokeWeight(1);
+    noFill();
+    rect(0,0,WORLD_WIDTH, 3);
         
-        if (p.pos.y < 0f) {
-          noStroke();
-          fill(255,0,0);
-          beginShape();
-          vertex(p.pos.x, 0);
-          vertex(p.pos.x+3, 6);
-          vertex(p.pos.x-3, 6);
-          endShape();
-        }
-      }
-      break;
-    }
-    
-    case GAME_OVER: {
-      int winnerIndex = -1;
-      for (int i=0; i<tanks.length; ++i) {
-        if (tanks[i].health > 0) {
-          winnerIndex = i;
-          break;
-        }
-      }
-      
-      String gameOverMessage;
-      if (winnerIndex == -1) { gameOverMessage = "It's a draw!"; }
-      else { gameOverMessage = "Player " + (winnerIndex+1) + " wins!"; }
-      
-      textAlign(CENTER,CENTER);
-      noStroke();
-      fill(255,255,255);
-      text(gameOverMessage, WORLD_WIDTH*0.5f, WORLD_HEIGHT*0.4f);
-      
-      text("Press <SPACE> to restart", WORLD_WIDTH*0.5f, WORLD_HEIGHT*0.9f);
-    }
+    fill(255,160,60);
+    noStroke();
+    fill(255,160,60);
+    rect(0,0,WORLD_WIDTH*launchPower, 3);
   }
+  
+  saveFrame("frame#####.png");
 }
 
 void generateTerrain() {
-  noiseSeed(millis());
-  
   terrainTexture = createImage(WORLD_WIDTH, WORLD_HEIGHT, ARGB);
   terrainTexture.loadPixels();
   for (int x=0; x<WORLD_WIDTH; ++x) {
     // Determine terrain height at this point
     float altitude = map(noise(x*NOISE_SCALE), 0, 1, 0.2f*WORLD_HEIGHT, 0.8f*WORLD_HEIGHT);
-    // Fill in terrain up to this height
     setTerrainHeight(x, altitude);
   }
   terrainTexture.updatePixels();
@@ -306,32 +188,17 @@ void setTerrainHeight(int x, float altitude) {
   }
 }
 
+//Projectile spawn
 
-/*
- * Keep track of which keys are being held
- */
 HashSet<Integer> heldKeys = new HashSet<Integer>();
-
 void keyPressed() {
   if (key == CODED) {
-    heldKeys.add(keyCode); //<>//
+    heldKeys.add(keyCode);
   }
   else {
-    if (state == State.AIM) {
-      if (key == ' ') {
-        // Begin launch phase
-        state = State.POWER;
-        launchPower = 0f;
-      }
-      else if (key == TAB) {
-        // Cycle selected projectile type
-        int newSelectedIndex = (selectedProjectileType.ordinal()+1) % ProjectileType.values().length;
-        selectedProjectileType = ProjectileType.values()[newSelectedIndex];  
-      }
-    }
-    else if (state == State.GAME_OVER) {
-      // Reset the game
-      resetGame();
+    if (state == State.AIM && key == ' ') {
+      state = state.POWER;
+      launchPower = 0f;
     }
   }
 }
@@ -344,24 +211,16 @@ void keyReleased() {
     if (state == State.POWER && key == ' ') {
       launchProjectile();
     }
-    else if (state == State.RESOLVE && key == ' ') {
-      for (Projectile p : new ArrayList<Projectile>(activeProjectiles)) {
-        if (p.isDead) continue;
-        p.onSecondaryInput();
-      }
-    }
   }
 }
 
 void launchProjectile() {
-  activeProjectiles.add(tanks[activeTankIndex].launchProjectile(launchPower * MAX_LAUNCH_SPEED, selectedProjectileType));
+  activeProjectile = tanks[activeTankIndex].launchProjectile(launchPower * MAX_LAUNCH_SPEED);
   state = State.RESOLVE;
 }
 
 void changeWind() {
-  // Generate a random wind vector
-  float x = random(-MAX_WIND_SPEED, MAX_WIND_SPEED);
-  float y = random(-MAX_WIND_SPEED, MAX_WIND_SPEED)*0.1f;
-  wind = new PVector(x, y);
-    
+  PVector dir = PVector.random2D();
+  float speed = random(0, MAX_WIND_SPEED);
+  wind = dir.mult(speed);
 }
