@@ -3,8 +3,8 @@ class Explosion {
   
   PVector pos;
   float radius;
-  float timeElapsed;
   
+  float timeElapsed;
   boolean isTriggered;
   boolean isDead;
   
@@ -27,15 +27,25 @@ class Explosion {
     if (animationProgress >= 0.5f && !isTriggered) {
       // Carve out terrain
       terrainTexture.loadPixels();
+      
+      // Iterate over the square containing the explosion
       int leftX = (int)Math.max(0, pos.x-radius);
       int rightX = (int)Math.min(WORLD_WIDTH-1, pos.x+radius);
       int topY = (int)Math.max(0, pos.y-radius);
       int bottomY = (int)Math.min(WORLD_HEIGHT-1, pos.y+radius);
       for (int x=leftX; x<=rightX; ++x) {
         for (int y=topY; y<=bottomY; ++y) {
+          // Check that this pixel is actually within the circle of the explosion 
           float distSq = new PVector(x-pos.x, y-pos.y).magSq();
           if (distSq < radius*radius) {
             terrainTexture.pixels[x + y*terrainTexture.width] = AIR_COLOR;
+            
+            // Check to see if we hit a tank
+            for (Tank t : tanks) {
+              if ((int)Math.round(t.pos.x) == x && (int)Math.round(t.pos.y) == y) {
+                t.onHit();
+              }
+            }
           }
         }
       }

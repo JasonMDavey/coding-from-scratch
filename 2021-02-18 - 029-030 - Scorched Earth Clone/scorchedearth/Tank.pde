@@ -1,12 +1,13 @@
 class Tank {
-  final float MIN_ANGLE = -PI*0.9f;
-  final float MAX_ANGLE = -PI*0.1f;
+  final float MIN_TURRET_ANGLE = -PI*0.9f;
+  final float MAX_TURRET_ANGLE = -PI*0.1f;
+  
   final float TURRET_LENGTH = 7;
   
   PVector pos;
   color col;
   float aimAngle;
-  int health = 100;
+  int health = 3;
   
   public Tank(PVector pos, color col) {
     this.pos = pos;
@@ -14,16 +15,27 @@ class Tank {
     this.aimAngle = -PI/2f;
   }
   
-  void aimTurret(float delta) {
-    aimAngle = constrain(aimAngle+delta, MIN_ANGLE, MAX_ANGLE);
+  void turnTurret(float delta) {
+    aimAngle = constrain(aimAngle+delta, MIN_TURRET_ANGLE, MAX_TURRET_ANGLE);
   }
   
-  Projectile launchProjectile(float speed) {
+  void onHit() {
+    if (health > 0) {
+      --health;
+    }
+  }
+  
+  Projectile launchProjectile(float speed, ProjectileType projectileType) {
     PVector turretDirection = PVector.fromAngle(aimAngle);
     PVector spawnPos = PVector.add(pos, PVector.mult(turretDirection,TURRET_LENGTH)); // Spawn at tip of turret
     PVector spawnVel = PVector.mult(turretDirection, speed);
     
-    return new Projectile(spawnPos, spawnVel, col);
+    switch (projectileType) {
+      case REGULAR:       return new Projectile(spawnPos, spawnVel, col, 20f);
+      case CLUSTER_BOMB:  return new ClusterBomb(spawnPos, spawnVel, col, 15f);
+      default:            throw new RuntimeException("Attempt to launch invalid projectile type =(");
+    }
+    
   }
   
   void update(float deltaSeconds) {
