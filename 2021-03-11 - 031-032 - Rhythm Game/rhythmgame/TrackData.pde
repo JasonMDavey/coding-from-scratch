@@ -5,12 +5,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 class TrackData {
-  
+   
   public class Hit {
+    public static final int HIT_PENDING = 0;
+    public static final int HIT_SUCCESS = 1;
+    public static final int HIT_FAILURE = 2;
+    
     int beat;
     int note;
     int duration;
-    boolean triggered = false;
+    
+    int state = HIT_PENDING;
+    float stateTime;
     
     public Hit(int beat, int note, int duration) {
       this.beat = beat;
