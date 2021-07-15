@@ -8,7 +8,7 @@ In the Coding From Scratch streams, we usually implement a brand new project eac
 
 Check out the streams live on Twitch each Thursday at https://twitch.tv/StrayBasilisk.
 
-They are also archived on YouTube at https://www.youtube.com/playlist?list=PLljr03m9JFTz8HBLSK_FVmD0kQfMPXVk_
+They are also archived on YouTube at https://www.youtube.com/playlist?list=PLljr03m9JFTz8HBLSK_FVmD0kQfMPXVk\_
 
 Past projects include:
 * Clones of classic games
